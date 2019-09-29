@@ -76,6 +76,9 @@
 									<th class="center">商品编号</th>
 									<th class="center">商品条码</th>
 									<th class="center">商品规格</th>
+									<th class="center">成本价</th>
+									<th class="center">进货价</th>
+									<th class="center">商品库存</th>
 									<th class="center">计量单位</th>
 									<th class="center">操作</th>
 								</tr>
@@ -101,6 +104,9 @@
 											<td class='center'>${var.GOODCODE}</td>
 											<td class='center'>${var.BARCODE}</td>
 											<td class='center'>${var.GOODSPECIF}</td>
+											<td class='center'>${var.CPRICE}</td>
+											<td class='center'>${var.LASTPPRICE}</td>
+											<td class='center'>${var.STOCKNUM}</td>
 											<td class='center'>${var.UNITNAME}</td>
 											<td class="center">
 												<c:if test="${QX.edit != 1 && QX.del != 1 }">
