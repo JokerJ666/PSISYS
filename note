@@ -1,0 +1,121 @@
+1、时间datatime
+DateUtil.getTime().toString()
+
+
+<td><input oninput="changecode(this.value)" type="text" name="QX_NAME" id="QX_NAME" value="${pd.QX_NAME}" maxlength="50" placeholder="这里输入权限标识" title="权限标识" style="width:98%;"/></td>
+
+2、获取session里的属性值
+
+Session session = Jurisdiction.getSession();
+User user = (User)session.getAttribute(Const.SESSION_USER);
+pd.put("USER_ID", user.getUSER_ID());	//用户主键
+
+
+3、修改、删除、查询必加的
+and PK_SOBOOKS = #{PK_SOBOOKS}
+and IFNULL(dr,0)=0 
+
+当传入参数为page时，用
+and PK_SOBOOKS = #{pd.PK_SOBOOKS}
+and IFNULL(dr,0)=0 
+4、删除
+	<!-- 删除-->
+	<update id="delete" parameterType="pd">
+		update 
+		<include refid="tableName"></include>
+		set
+			DR = 1 
+		where 
+			PAYMETHOD_ID = #{PAYMETHOD_ID}
+			and PK_SOBOOKS = #{PK_SOBOOKS}
+			and IFNULL(dr,0)=0 
+	</update>
+	
+
+	
+	
+5、 timestamp 的取法		
+		String createtime = ((Timestamp)varOList.get(i).get("CREATETIME")).toString();
+			vpd.put("var7", createtime.substring(0, createtime.length()-2));	
+
+6
+	@Autowired
+	private JdbcTempUtil jdbcTempUtil;
+
+7、批量删除的迁移
+=============================================service层============================================	
+	@Autowired
+	private JdbcTempUtil jdbcTempUtil;
+
+/**
+	 * 批量删除
+	 * DATA_IDS   主键 
+	 * PK_SOBOOKS  帐套主键
+	 */
+	public void deleteAll(String ArrayDATA_IDS[])throws Exception{
+		StringBuffer idstr = new StringBuffer("");
+		for(int i = 0; i < ArrayDATA_IDS.length; i++) {
+			idstr.append("'"+ArrayDATA_IDS[i]+"',");
+		}
+		//表名和主键字段名
+		jdbcTempUtil.deleteAll(idstr.toString().substring(0,idstr.toString().length()-1), (String)Jurisdiction.getSession().getAttribute(Const.SESSION_PK_SOBOOKS), "SYS_FHBUTTON", "FHBUTTON_ID");
+	}		
+8、页面实时监控
+$(document).ready(function(){
+		if($("#user_id").val()!=""){
+			$("#loginname").attr("readonly","readonly");
+			$("#loginname").css("color","gray");
+		}
+	});		
+	
+9、new SimpleHash("SHA-1", pd.getString("USERNAME"), pd.getString("PASSWORD")).toString() 加密
+
+
+
+
+
+10、编码生成器的使用
+//在service层中新增保存某条单据中使用
+@Autowired
+private ProductBillCodeUtil productBillCodeUtil;
+@Resource(name="billCodeService")
+private BillCodeManager billCodeService;
+	
+//例子：
+		String[] strs = productBillCodeUtil.getBillCode(Const.BILLCODE_SUPPSETBILL_PFIX); //获取该编号类型的最大编号
+		pd.put("SUPPSETBILL_ID", UuidUtil.get32UUID());
+		pd.put("BILLCODE",strs[0]);
+		pd.put("BILLTYPE", 3);
+		pd.put("LDATE", DateUtil.getTime().toString());
+		pd.put("BILLSTATUS", 1);
+		dao.save("SuppsetbillMapper.save", pd);
+		if(strs[1] == null){ //新增
+			PsiBillCode psiBillCode = new PsiBillCode();
+			psiBillCode.setCode_ID(UuidUtil.get32UUID());
+			psiBillCode.setCodeType(Const.BILLCODE_SUPPSETBILL_PFIX);
+			psiBillCode.setMaxNo(strs[0]);
+			psiBillCode.setNOTE("供应商结算单编号");
+			billCodeService.insertBillCode(psiBillCode);
+		}else{//修改
+			PageData ppp = new PageData();
+			ppp.put("MaxNo",strs[0]);
+			ppp.put("Code_ID", strs[1]);
+			billCodeService.updateMaxNo(ppp);
+		}
+		System.out.println(strs[0]);
+
+
+11 消息提示框
+$("#msgdialog").attr("style","display:block;");
+$("#msgtocust").html("当前付款不足已结算进货单的未付总额");
+<div class="alert alert-warning alert-dismissable" id = "msgdialog" style ="display: none">
+<button type="button" class="close" data-dismiss="alert" aria-hidden="true" >
+	&times;
+</button>
+	<label id="msgtocust" value="消息">阿囧</label>
+</div>
+
+
+12 操作日志
+FHLOG.save(Jurisdiction.getUsername(), "删除系统用户："+pd);
+
